@@ -1,0 +1,387 @@
+\documentclass{article}
+\usepackage{main}
+\usepackage{quiver}
+\usepackage{adjustbox}
+
+% \newcommand\eval{\ensuremath{\operatorname{eval}}}
+% \renewcommand\exp[2]{\ensuremath{[ #1 \to #2 ]}}
+% \newcommand\id{\ensuremath{\operatorname{id}}}
+% \newcommand\path{\ensuremath{\operatorname{path}}}
+% \newcommand\grf{\ensuremath{\operatorname{Grf}}}
+% \newcommand\set{\ensuremath{\operatorname{Set}}}
+% \newcommand\category{\ensuremath{\operatorname{Cat}}}
+% \newcommand\cone{\ensuremath{\operatorname{cone}}}
+% \renewcommand\vec{\ensuremath{\operatorname{Vec}}}
+% \newcommand\cat[1]{\ensuremath{\mathcal{#1}}}
+% \newcommand\from{\ensuremath{\,:\,}}
+% \DeclareMathOperator{\func}{func}
+% \DeclareMathOperator{\op}{op}
+% \newcommand{\pow}{\ensuremath{\mathcal{P}}}
+% \DeclareMathOperator{\rel}{Rel}
+% \DeclareMathOperator{\proj}{proj}
+% \newcommand{\first}{\ensuremath{\proj_1}}
+% \newcommand{\second}{\ensuremath{\proj_2}}
+% \newcommand{\field}{\ensuremath{\mathbb{F}}}
+% \newcommand{\adjoint}{\ensuremath{\dashv}}
+% \newcommand{\iso}{\ensuremath{\cong}}
+
+% \newcommand\problem[1]{%
+%   \setcounter{subsection}{\numexpr#1-1\relax}%
+%   \refstepcounter{subsection}%
+%   \subsection{\thesubsection}%
+%   \label{\thesubsection}
+% }
+
+% \newcommand\notes{
+%   \begingroup
+%   \renewcommand\thesubsection{Notes}
+%   \subsection{\thesubsection}
+%   \endgroup
+% }
+
+% \newcommand\solutions{
+%   \textbf{Solutions}\par
+% }
+
+% \newcommand\solution{
+%   \textbf{Solution}\par
+% }
+
+% \newcommand{\buildset}[2]{%
+%   \left\{
+%     #1
+%     \,
+%     \left|
+%     \,
+%     #2
+%     \right.
+%   \right\}
+% }
+
+% \newcommand{\either}[2]{%
+%   \left\langle
+%   #1
+%   \,
+%   \left|
+%   \,
+%   #2
+%   \right.
+%   \right\rangle
+% }
+
+
+\title{Syntax and Semantics of Dependent Types \\ \large Solutions to Exercises}
+\author{Apoorv Ingle}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+A cheat-sheet for judgements and solutions to Martin Hofmann's Syntax and
+Semantics of Dependent types.
+
+
+\begin{figure}[H]
+  \centering
+  \begin{tabular}[H]{c | c c}
+    Notation     & Original & New\\\hline\hline
+    Substitution & $M[N/x]$ & $\Subst x N M$\\
+    Meta-binder  & $[x\co\sigma]\tau$ & $\tau[x\co\sigma]$
+  \end{tabular}
+  \caption{Notational Differences}
+\end{figure}
+
+\section{Formal Systems for Dependent Types}
+
+\newcommand\WfCtx[1]{\vdash #1 ~ ctxt}
+\newcommand\WfType[2]{#1 \vdash #2 ~ type}
+\newcommand\WfTerm[3]{#1 \vdash #2 : #3}
+
+\newcommand\EqCtx[2]{\vdash #1 = #2 ~ ctxt}
+\newcommand\EqType[3]{#1 \vdash #2 = #3 ~ type}
+\newcommand\EqTerm[4]{#1 \vdash #2 = #3 : #4}
+
+\begin{enumerate}
+\item $\WfCtx \Gamma$
+\item $\WfType \Gamma \sigma$
+\item $\WfTerm \Gamma M \sigma$
+\item $\EqCtx \Gamma \Delta$
+\item $\EqType \Gamma \sigma \tau$
+\item $\EqTerm \Gamma M N \sigma$
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{gather*}
+% \fbox{$\WfCtx \Gamma$}\rsp \fbox{$\WfType \Gamma \sigma$}\\
+\ib{\irule[\trule{C-Emp}]
+   {};
+   {\WfCtx \diamond}}%
+\rsp
+\ib{\irule[\trule{C-Ext}]
+  {\WfType \Gamma \sigma};
+  {\WfCtx {\Gamma,\sigma}}
+}
+\\
+\ib{\irule[\trule{C-Ext-Eq}]
+  {\EqCtx \Gamma \Delta}
+  {\EqType \Gamma \sigma \tau}
+  {x\not\in fvs(\Gamma) \wedge y \not\in fvs(\Delta)};
+  {\EqCtx {\Gamma,x\co\sigma}{\Delta,y\co\tau}}
+}
+\end{gather*}
+\caption{Context formation rules}
+\label{fig:ctxt-valid}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{gather*}
+\ib{\irule[\trule{Var}]
+  {\WfCtx {\Gamma, x\co\sigma, \Delta}};
+  {\WfTerm {\Gamma, x\co\sigma, \Delta} x \sigma}
+}
+\end{gather*}
+\caption{Variable rule}
+\end{figure}
+
+\begin{figure}[H]
+\begin{gather*}
+\ib{\irule[\trule{C-Eq-R}]
+  {\WfCtx \Gamma};
+  {\EqCtx \Gamma \Gamma}
+}
+\rsp
+\ib{\irule[\trule{C-Eq-S}]
+  {\EqCtx \Gamma \Delta};
+  {\EqCtx \Delta \Gamma}
+}
+\rsp
+\ib{\irule[\trule{C-Eq-T}]
+  {\EqCtx \Gamma \Delta}
+  {\EqCtx \Delta \Theta};
+  {\EqCtx \Gamma \Theta}
+}
+\\
+\ib{\irule[\trule{Ty-Eq-R}]
+  {\WfType \Gamma \sigma};
+  {\EqType \Gamma \sigma \sigma}
+}
+\rsp
+\ib{\irule[\trule{Ty-Eq-S}]
+  {\EqType \Gamma \sigma \tau};
+  {\EqType \Gamma \tau \sigma}
+}
+\rsp
+\ib{\irule[\trule{Ty-Eq-T}]
+  {\EqType \Gamma \sigma \tau}
+  {\EqType \Gamma \tau \rho};
+  {\EqType \Gamma \sigma \rho}
+}
+\\
+\ib{\irule[\trule{Tm-Eq-R}]
+  {\WfTerm \Gamma M \sigma};
+  {\EqTerm \Gamma M M \sigma}
+}
+\rsp
+\ib{\irule[\trule{Tm-Eq-S}]
+  {\EqTerm \Gamma M N \sigma};
+  {\EqTerm \Gamma N M \sigma}
+}
+\rsp
+\ib{\irule[\trule{Tm-Eq-T}]
+  {\EqTerm \Gamma M N \sigma}
+  {\EqTerm \Gamma N O \sigma};
+  {\EqTerm \Gamma M O \sigma}
+}
+\end{gather*}
+\caption{Definitional Equality is an equivalence relation}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{gather*}
+\ib{\irule[\trule{Ty-Conv}]
+   {\EqCtx \Gamma \Delta}
+   {\WfType \Gamma \sigma};
+   {\WfType \Delta \sigma}
+ }
+\rsp
+\ib{\irule[\trule{Tm-Conv}]
+   {\WfTerm \Gamma M \sigma}
+   {\EqCtx \Gamma \Delta}
+   {\EqType \Gamma \sigma \tau};
+   {\WfTerm \Delta M \tau}
+  }
+\end{gather*}
+\caption{Type Conversion and Definitional Equality}
+\end{figure}
+
+Let ${\mathcal{J} \in \{M\co\sigma, \sigma ~ type, M = N : \sigma, \sigma = \tau ~ type\}}$
+
+\begin{figure}[H]
+\centering
+\begin{gather*}
+\ib{\irule[\trule{Weak}]
+  {\Gamma, \Delta \vdash \mathcal{J}}
+   {\WfType \Gamma \rho};
+   {\Gamma, x\co\rho, \Delta \vdash \mathcal{J}}
+ }
+ \rsp
+\ib{\irule[\trule{Subst}]
+   {\Gamma,x\co\rho, \Delta \vdash \mathcal{J}}
+   {\WfTerm \Gamma U \rho};
+   {\Gamma,\Subst{x}{U}\Delta \vdash \Subst{x}{U}\mathcal{J}}
+ }
+\end{gather*}
+\caption{Weakening and Substitution Rules}
+\end{figure}
+
+\subsection{Type Formers}
+``There is no definitive set of type formers, and new ones can be
+invented as needed''
+
+\subsubsection{Dependent Function Space}
+\begin{figure}[H]
+\centering
+\begin{gather*}
+\ib{\irule[\trule{$\Pi$-F}]
+  {\WfType \Gamma \sigma}
+  {\WfType {\Gamma,x\co\sigma} \tau};
+  {\WfType \Gamma {\PiTy {x\co\sigma} \tau}}
+}
+\rsp
+\ib{\irule[\trule{$\Pi$-Eq}]
+  {\EqType \Gamma {\sigma_1} {\sigma_2}}
+  {\EqType {\Gamma,x\co\sigma} {\tau_1} {\tau_2}}
+  {\sigma \in \{\sigma_1, \sigma_2\}};
+  {\EqType \Gamma {\Pi x\co\sigma_1.\tau_1} {\PiTy{x\co\sigma_2} {\tau_2}}}
+}
+\\
+\ib{\irule[\trule{\I\Pi}]
+  {\WfTerm {\Gamma,x\co\sigma} M \tau};
+  {\WfTerm \Gamma {\Lam {x\co\sigma} {M^\tau}} {\PiTy {x\co\sigma} \tau}}
+}
+\\
+\ib{\irule[\trule{\IEq\Pi}]
+  {\EqTerm {\Gamma,x\co\sigma_1} {M_1}{M_2} \tau_1}
+  {\EqType \Gamma {\sigma_1}{\sigma_2}}
+  {\EqType {\Gamma,x\co\sigma_1} {\tau_1} {\tau_2}};
+  {\EqTerm \Gamma {\Lam {x\co\sigma_1} {M_1^{\tau_1}}} {\Lam {x\co\sigma_2} {M_2^{\tau_2}}} {\PiTy {x\co\sigma_1} \tau_1}}
+}
+\\
+\ib{\irule[\trule{\E\Pi}]
+  {\WfTerm \Gamma M {\PiTy {x\co\sigma} \tau}}
+  {\WfTerm \Gamma N \sigma};
+  {\WfTerm {\Gamma} {\PiAppTm {\tau[x\co\sigma]} M N} {\Subst{x}{N}\tau}}
+}
+\rsp
+\ib{\irule[\trule{\C\Pi}]
+  {\WfTerm \Gamma {\Lam {x\co\sigma} {M^{\tau}}} {\PiTy {x\co\sigma} \tau}}
+  {\WfTerm \Gamma N \sigma};
+  {\EqTerm {\Gamma}{\PiAppTm {\tau[x\co\sigma]} {\Lam {x\co\sigma} {M^{\tau}}} N}{\Subst{x}{N}M}{\Subst{x}{N}\tau}}
+}
+\end{gather*}
+\caption{Dependent Function Space}
+\end{figure}
+
+\subsubsection{Dependent Sum}
+
+\begin{figure}[H]
+\centering
+\begin{gather*}
+\ib{\irule[\trule{$\Sigma$-F}]
+  {\WfType \Gamma \sigma}
+  {\WfType {\Gamma,x\co\sigma} \tau};
+  {\WfType \Gamma {\SigmaTy {x\co\sigma} \tau}}
+}
+\rsp
+\ib{\irule[\trule{$\Sigma$-Eq}]
+  {\EqType \Gamma {\sigma_1} {\sigma_2}}
+  {\EqType {\Gamma,x\co\sigma} {\tau_1} {\tau_2}}
+  {\sigma \in \{\sigma_1, \sigma_2\}};
+  {\EqType \Gamma {\Sigma x\co\sigma_1.\tau_1} {\SigmaTy{x\co\sigma_2} {\tau_2}}}
+}
+\\
+\ib{\irule[\trule{\I\Sigma}]
+  {\WfTerm {\Gamma} M \sigma}
+  {\WfTerm \Gamma N {\Subst{x}{M}\tau}};
+  {\WfTerm \Gamma {\SigmaPair {\tau[x\co\sigma]} M N} {\SigmaTy {x\co\sigma} \tau}}
+}
+\\
+\ib{\irule[\trule{\IEq\Sigma}]
+  {\EqTerm {\Gamma} {M_1}{M_2} \sigma_1}
+  {\EqTerm {\Gamma,x\co\sigma_1} {N_1}{N_2} \tau_1}
+  {\EqType \Gamma {\sigma_1}{\sigma_2}}
+  {\EqType {\Gamma,x\co\sigma_1} {\tau_1} {\tau_2}};
+  {\EqTerm \Gamma {\SigmaPair {\tau_1[x\co\sigma_1]} {M_1} {N_1}} {\SigmaPair {\tau_2[x\co\sigma_2]} {M_2} {N_2}} {\SigmaTy {x\co\sigma_1} \tau_1}}
+}
+\\
+\ib{\irule[\trule{\E\Sigma}]
+  {\WfType {\Gamma, z\co\SigmaTy {x\co\sigma} \tau} {\rho}}
+  {\WfTerm {\Gamma, x\co\sigma, y\co\tau} H {\Subst{z}{\SigmaPair {\tau[x\co\sigma]} x y}\rho}}
+  {\WfTerm \Gamma M {\SigmaTy {x\co\sigma} \tau}};
+  {\EqTerm {\Gamma}{\RecSigma {\rho[z:\SigmaTy{x\co\sigma}{\tau}]} {H[x\co\sigma,y\co\tau]} M}{\Subst{z}{M}\rho}}
+}
+\\
+\ib{\irule[\trule{\C\Sigma}]
+  {\WfTerm \Gamma %
+    {\RecSigma {\rho[z\co\SigmaTy {x\co\sigma} \tau]}%
+               {H[x\co\sigma,y\co\tau]} %
+               {\SigmaPair {\tau[x\co\sigma]}{M}{N}}} %
+    {\Subst z {\SigmaPair {\tau[x\co\sigma]} M N}\rho}};
+  {\EqTerm \Gamma %
+     {\RecSigma {\rho[z\co\SigmaTy {x\co\sigma}\tau]} {H[x\co\sigma,y\co\tau]} {\SigmaPair {\tau[x\co\sigma]} M N}}
+     {\Substs{x\mapsto M, y\mapsto N}H}
+     {\Subst z {\SigmaPair {\tau[x\co\sigma]} M N}\rho}}
+}
+\end{gather*}
+\caption{Dependent Sum}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{syntax}
+M.1 \DefEq \RecSigma {\rho[z\co\SigmaTy {x\co\sigma} \tau]} {x[x\co\sigma,y\co\tau]}{M} : \sigma\\\\
+M.2 \DefEq \RecSigma {\Subst{x}{z.1}\rho[z\co\SigmaTy {x\co\sigma} \tau]} {y[x\co\sigma,y\co\tau]} {M} : \Subst{x} {M.1} \tau
+\end{syntax}
+\caption{Projection Shorthands}
+\end{figure}
+
+\subsubsection{Natural Numbers}
+
+\subsubsection{Notation}
+
+\subsubsection{Identity Types}
+
+\subsubsection{Universes}
+
+\subsubsection{Miscellaneous types}
+
+\subsection{Examples of Type theories}
+
+\subsubsection{Martin-L\"of's type theory}
+
+\subsubsection{The Logical Framework}
+
+\subsubsection{The Calculus of Constructions}
+
+
+\subsection{Pre-Syntax}
+
+\begin{syntax}
+\Gamma &::= \diamond \mid \Gamma, x\co\sigma
+\end{syntax}
+
+\subsection*{Exercises}
+
+
+\subsection{Context Morphisms}
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
