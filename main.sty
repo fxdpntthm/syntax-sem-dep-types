@@ -166,14 +166,23 @@
 \newcommand\Forall[2]{\forall #1. #2}
 \newcommand\ForallS[3]{\forall #1 {:} #2. #3}
 
+\newcommand\PiTy[2]{\Pi {#1}.~ {#2}}
+\newcommand\SigmaTy[2]{\Sigma {#1}.~ {#2}}
+
 \newcommand\Bool{\TyC{Bool}}
 \newcommand\Int{\TyC{Int}}
 \newcommand\Double{\TyC{Double}}
 \newcommand\List{\TyC{List}}
-\newcommand\RecSigma[3]{\texttt{R}^\Sigma_{#1}(#2, #3)}
+\newcommand\IdTy[3]{\texttt{Id}_{#1} (#2, #3)}
+\newcommand\NatTy{\mathbb{N}}
+
 %% Syntax - terms
-\newcommand\PiTy[2]{\Pi {#1}.~ {#2}}
-\newcommand\SigmaTy[2]{\Sigma {#1}.~ {#2}}
+
+\newcommand\Refl[2]{\texttt{Refl}_{#1} (#2)}
+\newcommand\RecSigma[3]{\texttt{R}^\Sigma_{#1}(#2, #3)}
+\newcommand\RecId[5]{\texttt{R}^{\texttt{Id}}_{#1} (#2, #3, #4, #5)}
+\newcommand\RecNat[4]{\texttt{R}^{\mathbb N}_{#1} (#1, #2, #3)}
+\newcommand\Suc[1]{\texttt{Suc}(#1)}
 % \newcommand\Let[3]{\mathsf{let}\;#1 = #2\;\mathsf{in}\;#3}
 
 \newcommand\Lam[2]{\lambda #1. \, #2}
@@ -202,7 +211,7 @@
 %% Syntax - coercions
 
 \newcommand\Coe[1]{\langle #1 \rangle}
-\newcommand\Refl[1]{\mathsf{refl}_{#1}}
+% \newcommand\Refl[1]{\mathsf{refl}_{#1}}
 \newcommand\Sym[1]{\mathsf{sym} \Ap #1}
 \newcommand\Trans[2]{#1 \fatsemi #2}
 \newcommand\CAp[2]{#1 \mathbin @ #2}

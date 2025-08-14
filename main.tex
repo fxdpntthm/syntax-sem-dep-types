@@ -342,14 +342,27 @@ invented as needed''
 
 \begin{figure}[H]
 \centering
-\begin{syntax}
-M.1 \DefEq \RecSigma {\rho[z\co\SigmaTy {x\co\sigma} \tau]} {x[x\co\sigma,y\co\tau]}{M} : \sigma\\\\
-M.2 \DefEq \RecSigma {\Subst{x}{z.1}\rho[z\co\SigmaTy {x\co\sigma} \tau]} {y[x\co\sigma,y\co\tau]} {M} : \Subst{x} {M.1} \tau
-\end{syntax}
+\begin{doublesyntax}
+M.1 \DefEq \RecSigma {\sigma[z\co\SigmaTy {x\co\sigma} \tau]} {x[x\co\sigma,y\co\tau]}{M} : \sigma\\\\
+M.2 \DefEq \RecSigma {\Subst{x}{z.1}\tau[z\co\SigmaTy {x\co\sigma} \tau]} {y[x\co\sigma,y\co\tau]} {M} : \Subst{x} {M.1} \tau
+\end{doublesyntax}
 \caption{Projection Shorthands}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\begin{syntax}
+\sigma \to \tau &\DefEq \PiTy {x\co\sigma} \tau\\
+\sigma \times \tau &\DefEq \SigmaTy {x\co\sigma} \tau\\
+\end{syntax}
+\caption{$\Pi$ and $\Sigma$ Special Case, $x \not\in fvs(\tau0)$}
+\end{figure}
+
 \subsubsection{Natural Numbers}
+\begin{figure}[H]
+\centering
+\caption{Natural Numbers}
+\end{figure}
 
 \subsubsection{Notation}
 
@@ -370,10 +383,23 @@ M.2 \DefEq \RecSigma {\Subst{x}{z.1}\rho[z\co\SigmaTy {x\co\sigma} \tau]} {y[x\c
 
 \subsection{Pre-Syntax}
 
-\begin{syntax}
-\Gamma &::= \diamond \mid \Gamma, x\co\sigma
-\end{syntax}
-
+\begin{figure}[H]
+\centering
+\begin{doublesyntax}
+\mcl {\text{Pre-Contexts}} & \Gamma & ::= &\diamond \mid \Gamma, x\co\sigma\\
+\mcl {\text{Pre-Types}} & \sigma, \tau & ::= &\PiTy {x\co\sigma} \tau %
+           \mid \SigmaTy {x\co\sigma} \tau \mid \IdTy\sigma M N \mid N\\
+\mcl {\text{Pre-Terms}} & M, N, H, P& := %
+  & x \mid \Lam {x\co\sigma} M^\tau \mid \PiAppTm {\tau[x\co\sigma]} M N\\%
+  & & & & \mid \SigmaPair {\tau[x\co\sigma]} M N %
+          \mid \RecSigma {\rho[z:\SigmaTy {x\co\sigma} \tau]} {H[x\co\sigma, y\co\tau]} {M}\\ %
+  & & & & \mid \Refl \sigma M%
+  \mid \RecId {\tau[x\co\sigma,y\co\sigma,p:\IdTy{\sigma}{x}{y}]} {H[z\co\sigma]} M N P \\ %
+  & & & & \mid 0 %
+  \mid \Suc M \mid \RecNat {\sigma[n\co\NatTy]} {H_z} {H_s[n\co\NatTy,x\co\sigma]} M
+\end{doublesyntax}
+\caption{Pre-syntax}
+\end{figure}
 \subsection*{Exercises}
 
 
